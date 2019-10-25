@@ -1,5 +1,13 @@
 from grammer import LANG_DICT
 from helpers import convert_to_hex, construct_output, out_file
+
+import json
+config = ""
+
+with open("config.json", "r") as f: config = json.load(f)
+print(config)
+mode = config["mode"]
+
 mem_ref_inst = LANG_DICT["MEM_REF"].keys()
 reg_inst = LANG_DICT["REG_INST"].keys()
 io_inst = LANG_DICT["IO"].keys()
@@ -30,7 +38,9 @@ def memory_ref_interpreter(inst_line):
     inst = line[0]
     m_inst = ""
     if len(line) > 3:
-        m_inst =  LANG_DICT["MEM_REF"][inst]["1"]
+        print("heeeey" + inst_line)
+        inst = line[1]
+        m_inst =  LANG_DICT["MEM_REF"][inst]["1"] #TODO handle LOP (test2)
     else:
         m_inst = LANG_DICT["MEM_REF"][inst]["0"]
     m_inst = m_inst.replace("XXX", locs[line[1]]["index"])
@@ -75,7 +85,7 @@ def simple_converter(data):
 
 
 
-x = read_input("test.inp")
+x = read_input("test2.inp.txt")
 simple_converter(x)
 out_file(final_code, "out.out")
 print(locs)
