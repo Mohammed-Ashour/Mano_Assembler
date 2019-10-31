@@ -3,7 +3,7 @@
 def convert_to_hex(line):
     # line like "DEC 9"
     #here we convert from decimal to hex
-    print(line)
+    #print(line)
     line = line[1:] #skipping the first unneeded space
     conv_type = line.split(" ")[0]
     if conv_type == "DEC":
@@ -11,7 +11,7 @@ def convert_to_hex(line):
         n = "0"*(4 - len(n)) + n
         return n
     else:
-        print(">>>>" + line)
+        #print(">>>>" + line)
         n = "0"*(4-len(line.split(" ")[1])) + line.split(" ")[1]
         return n
 
