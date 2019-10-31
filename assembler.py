@@ -6,6 +6,11 @@ config = ""
 #with open("config.json", "r") as f: config = json.load(f)
 #print(config)
 #mode = config["mode"]
+colors = {
+    "OKGREEN" : "\033[92m",
+    "FAILRED" : "\033[91m",
+    "END" : "\033[0m"
+}
 
 mem_ref_inst = LANG_DICT["MEM_REF"].keys()
 reg_inst = LANG_DICT["REG_INST"].keys()
@@ -119,7 +124,7 @@ def memory_ref_validator(inst_list):
 
 def error_handler(cur_index, msg):
     global errors
-    print("\033[91m" + "[X]--> Error @ line ["+str(cur_index - LC + 2)+ "] " +msg + "\033[0m")
+    print(colors["FAILRED"] + "[X]--> Error @ line ["+str(cur_index - LC + 2)+ "] " +msg + colors["END"])
     errors += 1
 
 def reg_ref_interpreter(inst_list):
@@ -152,6 +157,7 @@ def simple_converter(data):
     global LC, final_code
     cur_index = 0
     for i in data:
+        i = i.upper()
         cur_index += 1
         if "ORG" in i: 
             LC = int(i.split(" ")[1])
@@ -160,6 +166,7 @@ def simple_converter(data):
             locs.update(make_memory(i, cur_index))
     
     for i in data:
+        i = i.upper()
         cur_index += 1
         inst = i.split(" ")[0]
         if inst == "ORG":
@@ -195,11 +202,7 @@ def simple_converter(data):
 x = read_input("test2.inp.txt")
 simple_converter(x)
 out_file(final_code, "out.out")
-colors = {
-    "OKGREEN" : "\033[92m",
-    "FAILRED" : "\033[91m",
-    "END" : "\033[0m"
-}
+
 color = colors["OKGREEN"]
 #print(errors)
 if errors > 0 :
