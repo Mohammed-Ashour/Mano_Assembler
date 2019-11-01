@@ -83,7 +83,6 @@ def global_interpreter(inst_line, cur_index):
                 final_code = construct_output(final_code, str(cur_index) + " " + memory_ref_interpreter(inst_list))
             else:
                 error_handler(cur_index, inst_line)
-                exit
 
 
         elif inst in reg_inst:
@@ -91,16 +90,15 @@ def global_interpreter(inst_line, cur_index):
                 final_code = construct_output(final_code, str(cur_index) + " " + reg_ref_interpreter(inst_list))
             else:
                 error_handler(cur_index, inst_line)
-                exit
 
         elif inst in io_inst:
             if io_ref_validator(inst_list):
                 final_code = construct_output(final_code, str(cur_index) + " " + io_ref_interpreter(inst_list))
             else:
                 error_handler(cur_index, inst_line)
-                exit
 
-        else: print("-- not imp")
+        else:
+            error_handler(cur_index, inst_line)
             
     
 
@@ -198,18 +196,18 @@ def simple_converter(data):
 
 
 
+color = colors["OKGREEN"]
 
 x = read_input("test2.inp.txt")
 simple_converter(x)
-out_file(final_code, "out.out")
-
-color = colors["OKGREEN"]
-#print(errors)
 if errors > 0 :
     color = colors["FAILRED"]
+    print(color + "Couldn't convert the file, fix the Errors first!!"  + colors["END"] )
+else:
+    out_file(final_code, "out.out")
+    print(color + "File converted successfully, check out.out!!"  + colors["END"] )
 
-
-
+    
 print(color + "Program ended with " + str(errors) + " Errors" + colors["END"] )
 #print(locs)
 
