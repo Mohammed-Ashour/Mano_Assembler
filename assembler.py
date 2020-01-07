@@ -30,12 +30,20 @@ def read_input(inp_file_location):
 
 def make_memory(loc_line, index):
     loc_name = loc_line.split(",")[0]
+    if len(loc_name) != 3 or loc_name[0].isdigit():
+        error_handler(index, "Invalid Naming")
+        return False
     value = convert_to_hex(loc_line.split(",")[1])
     return {loc_name : {"value": value, "index": str(index) }}
 
 def read_from_memory(pesudo):
-    return locs[pesudo]["value"]
+    if pesudo in locs.keys():
+        return locs[pesudo]["value"]
+    else: 
+        return False
 
+
+    
 def memory_ref_interpreter(inst_list):
     
     line = inst_list
@@ -51,73 +59,27 @@ def memory_ref_interpreter(inst_list):
     m_inst = m_inst.replace("XXX", locs[line[1]]["index"])
     return m_inst
 
-def global_interpreter(inst_line, cur_index):
-    global final_code
-    line = ""
-    #remove comments
-    if "/" in inst_line : inst_line = inst_line.split("/")[0]
-
-    if "," in inst_line:
-        pesudo, line = inst_line.split(", ")[0], inst_line.split(", ")[1]
-        inst_list = line.split(" ")
-        inst = inst_list[0]
-        if inst in mem_ref_inst:
-            if memory_ref_validator(inst_list):
-                final_code = construct_output(final_code, str(cur_index) + " " + memory_ref_interpreter(inst_list))
-                locs.update(make_memory(inst_line, cur_index))
-
-            else:
-                error_handler(cur_index, inst_line)
-                exit
-        elif inst in num_systems:
-            locs.update(make_memory(inst_line, cur_index))
-            final_code =  construct_output(final_code,str(cur_index) + " " + read_from_memory(pesudo) )
-        elif inst in reg_inst:
-            reg_ref_validator(inst_list)
-
-    else :
-        inst_list = inst_line.split(" ")
-        inst = inst_list[0]
-        if inst in mem_ref_inst:
-            if memory_ref_validator(inst_list):
-                final_code = construct_output(final_code, str(cur_index) + " " + memory_ref_interpreter(inst_list))
-            else:
-                error_handler(cur_index, inst_line)
-
-
-        elif inst in reg_inst:
-            if reg_ref_validator(inst_list):
-                final_code = construct_output(final_code, str(cur_index) + " " + reg_ref_interpreter(inst_list))
-            else:
-                error_handler(cur_index, inst_line)
-
-        elif inst in io_inst:
-            if io_ref_validator(inst_list):
-                final_code = construct_output(final_code, str(cur_index) + " " + io_ref_interpreter(inst_list))
-            else:
-                error_handler(cur_index, inst_line)
-
-        else:
-            error_handler(cur_index, inst_line)
-            
-    
-
 def memory_ref_validator(inst_list):
     inst_list_len = len(inst_list)
-    if inst_list_len == 2:
-        if inst_list[1] in locs.keys() or inst_list[1] in num_systems:
-           return True
-        else:
-            return False
-        #check if the other attr is number or stored psudo
-    elif inst_list_len == 3:
-        #check if the last item if it == I
-        # check if the second attr is a number or stored psudo
-        if inst_list[2] == "I" and (inst_list[1] in locs.keys() or inst_list[1] in num_systems):
-            #print(inst_list[1])
-            return True
-        else:
-            return False
+    if inst_list_len >= 2 and inst_list_len <= 3:
+        #name validation
+
+        if inst_list_len == 2:
+            if inst_list[1] in locs.keys() or inst_list[1] in num_systems:
+                return True
+            else:
+                return False
+            #check if the other attr is number or stored psudo
+        elif inst_list_len == 3:
+            #check if the last item if it == I
+            # check if the second attr is a number or stored psudo
+            if inst_list[2] == "I" and (inst_list[1] in locs.keys() or inst_list[1] in num_systems):
+                #print(inst_list[1])
+                return True
+            else:
+                return False
+    else : 
+        return False
             #errorhandler(error_type="syntax", cur_index)
 
 def error_handler(cur_index, msg):
@@ -148,6 +110,58 @@ def io_ref_validator(inst_list):
         return False
 
 
+def global_interpreter(inst_line, cur_index):
+    global final_code
+    line = ""
+    #remove comments
+    if "/" in inst_line : inst_line = inst_line.split("/")[0]
+
+    if "," in inst_line:
+        pesudo, line = inst_line.split(", ")[0], inst_line.split(", ")[1]
+        inst_list = line.split(" ")
+        inst = inst_list[0]
+        if inst in mem_ref_inst:
+            if memory_ref_validator(inst_list):
+                final_code = construct_output(final_code, str(cur_index) + " " + memory_ref_interpreter(inst_list))
+                #locs.update(make_memory(inst_line, cur_index))
+
+            else:
+                error_handler(cur_index, inst_line + "  >> Invalid MEM REF INST")
+                exit
+        elif inst in num_systems:
+            #locs.update(make_memory(inst_line, cur_index))
+            if read_from_memory(pesudo):
+                final_code =  construct_output(final_code,str(cur_index) + " " + read_from_memory(pesudo) )
+            else:
+                error_handler(cur_index, inst_line + " Invalid MEM REF - Not Found!")
+        elif inst in reg_inst:
+            reg_ref_validator(inst_list)
+
+    else :
+        inst_list = inst_line.split(" ")
+        inst = inst_list[0]
+        if inst in mem_ref_inst:
+            if memory_ref_validator(inst_list):
+                final_code = construct_output(final_code, str(cur_index) + " " + memory_ref_interpreter(inst_list))
+            else:
+                error_handler(cur_index, inst_line)
+
+
+        elif inst in reg_inst:
+            if reg_ref_validator(inst_list):
+                final_code = construct_output(final_code, str(cur_index) + " " + reg_ref_interpreter(inst_list))
+            else:
+                error_handler(cur_index, inst_line + " Invalid Reg REF INST")
+
+        elif inst in io_inst:
+            if io_ref_validator(inst_list):
+                final_code = construct_output(final_code, str(cur_index) + " " + io_ref_interpreter(inst_list))
+            else:
+                error_handler(cur_index, inst_line + "Invalid IO INST")
+
+        else:
+            error_handler(cur_index, inst_line)
+            
 
 
 def simple_converter(data):
@@ -161,7 +175,11 @@ def simple_converter(data):
             LC = int(i.split(" ")[1])
             cur_index = LC - 1  # as that location is the next instruction location
         elif "," in i:
-            locs.update(make_memory(i, cur_index))
+            m = make_memory(i,cur_index)
+            if m != False:
+                locs.update(m)
+            else:
+                error_handler(cur_index, i + " Invalid Naming")
     
     for i in data:
         i = i.upper()
@@ -198,7 +216,7 @@ def simple_converter(data):
 
 color = colors["OKGREEN"]
 
-x = read_input("test2.inp.txt")
+x = read_input("test.inp")
 simple_converter(x)
 if errors > 0 :
     color = colors["FAILRED"]
