@@ -114,7 +114,9 @@ def global_interpreter(inst_line, cur_index):
     global final_code
     line = ""
     #remove comments
-    if "/" in inst_line : inst_line = inst_line.split("/")[0]
+    if "/" in inst_line : 
+        inst_line = inst_line.split("/")[0].rstrip()
+      
 
     if "," in inst_line:
         pesudo, line = inst_line.split(", ")[0], inst_line.split(", ")[1]
